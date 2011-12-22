@@ -18,6 +18,7 @@ module Main (
 
 import Data.Functor
 import Parsing
+import Tokens
 
 sums n = csums n n
     where

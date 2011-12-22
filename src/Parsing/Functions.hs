@@ -55,11 +55,11 @@ between open close val = open >> val <* close
 skipWhile :: Parser a -> Parser b -> Parser b
 skipWhile rubbish val = some rubbish >> val
 
-outer :: Parser a -> Parser b -> Parser c -> Parser ([a], c, [b])
+outer :: Parser a -> Parser b -> Parser c -> Parser (a, c, b)
 outer open close val = do
-    left <- many open
+    left <- open
     v <- val
-    right <- many close
+    right <- close
     return (left, v, right)
 
 
