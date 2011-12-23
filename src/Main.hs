@@ -4,7 +4,7 @@
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
--- Maintainer  :
+-- Maintainer  : Y. Laupa
 -- Stability   :
 -- Portability :
 --
@@ -17,14 +17,15 @@ module Main (
 ) where
 
 import Data.Functor
-import Parsing
+import Parsing.Functions
+import Parsing.Instances
 import Tokens
-
-sums n = csums n n
-    where
-      csums 0 _ = return []
-      csums n m = [1..min n m] >>= \x -> (x:) <$> (csums (n-x) x)
+import Control.Applicative hiding (some, many)
 
 
-main = putStrLn . show $ sums 5
+
+main = do
+    input <- return "(1+2)+1"
+    parsed <- return $ parse (expression) input
+    putStrLn . show $ parsed
 

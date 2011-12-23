@@ -4,7 +4,7 @@
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
--- Maintainer  :
+-- Maintainer  : Y. Laupa
 -- Stability   :
 -- Portability :
 --
@@ -16,7 +16,7 @@ module Utils.Instances where
 
 import Control.Applicative
 
-data Validation e a = Failure e | Success a
+data Validation e a = Failure e | Success a deriving (Show)
 
 instance Monad (Validation e) where
     return = Success

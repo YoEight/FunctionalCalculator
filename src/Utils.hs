@@ -4,7 +4,7 @@
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
--- Maintainer  :
+-- Maintainer  : Y. Laupa
 -- Stability   :
 -- Portability :
 --

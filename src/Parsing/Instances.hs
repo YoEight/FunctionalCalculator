@@ -4,7 +4,7 @@
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
--- Maintainer  :
+-- Maintainer  : Y. Laupa
 -- Stability   :
 -- Portability :
 --
@@ -18,35 +18,36 @@ import Utils.Instances
 import Data.Char
 import Control.Applicative
 import Data.Monoid
-import Control.Monad.State.Lazy
 
 
-newtype Parser a = Parser { computation :: StateT String (Validation String) a }
-
-runParser :: Parser a -> String -> Validation String a
-runParser = evalStateT . computation
+newtype Parser a = Parser { parse :: String -> Validation String (String, a) }
 
 instance Monad Parser where
-    return a = Parser (return a)
-    (Parser ms) >>= f = Parser (ms >>= (computation . f))
+    return a = Parser (\s -> (Success (s, a)))
+    ma >>= f = Parser (\s -> binder (parse ma s)) where
+        binder (Success (s', a)) = parse (f a) s'
+        binder (Failure e) = (Failure e)
 
-    fail msg = Parser (StateT (\_ -> (Failure msg)))
+    fail msg = Parser (const (Failure msg))
 
 instance Functor Parser where
     fmap f m = m >>= (return . f)
 
 instance Applicative Parser where
     pure = return
-    mf <*> ma = mf >>= (\f -> ma >>= \a -> return (f a))
+    mf <*> ma = do
+        f <- mf
+        a <- ma
+        return $ f a
 
-instance Monoid a => Monoid (Parser a) where
-    mempty = fail "empty"
-    ma `mappend` ma' = return (mappend) <*> ma <*> ma'
+--instance Monoid a => Monoid (Parser a) where
+--    mempty = fail "empty"
+--    ma `mappend` ma' = (mappend) <$> ma <*> ma'
 
-instance Alternative (Parser) where
-    empty = fail "error"
-    ma <|> ma' = Parser (get >>= (\s -> fun (runStateT (computation ma) s) s)) where
-        fun  r@(Success _) _ = StateT (\_ -> r)
-        fun (Failure _) s = StateT (\_ -> runStateT (computation ma') s)
+--instance Alternative (Parser) where
+--    empty = fail "error"
+--    ma <|> ma' = Parser (\s -> alter (parse ma s) s) where
+--        alter r@(Success _) _ = r
+--        alter _ s = parse ma' s
 
 

@@ -4,7 +4,7 @@
 -- Copyright   :
 -- License     :  AllRightsReserved
 --
--- Maintainer  :
+---- Maintainer  : Y. Laupa
 -- Stability   :
 -- Portability :
 --
@@ -16,7 +16,7 @@ module Tokens where
 
 import Parsing.Instances
 import Parsing.Functions
-import Control.Applicative
+import Control.Applicative hiding (some, many)
 
 data Operator = Add | Multiply | Divide | Substract | Modulo deriving (Show)
 
@@ -25,6 +25,8 @@ data Function = Cos | Sin | Tan | Exp deriving (Show)
 data Expression = Val Int
                 | Op { left :: Expression, op :: Operator, right :: Expression }
                 | Fn { func :: Function,  expr :: Expression }
+                | Pending { unparsed :: String } deriving (Show)
+
 
 plus :: Parser Operator
 plus = is '+' >> return Add
@@ -42,14 +44,15 @@ modulo :: Parser Operator
 modulo = is '%' >> return Modulo
 
 operator :: Parser Expression
-operator = outer expression expression (multiply <|> divide <|> plus <|> minus) >>= return . binder where
+operator = (parenthesis operator) |||
+ (outer (value ||| delay) (value ||| delay) (multiply ||| divide ||| plus ||| minus) >>= return . binder) where
     binder (left, op, right) = (Op left op right)
 
 function :: Parser Expression
-function = do
-    name <- (many letter)
+function = (parenthesis function) ||| do
+    name <- (some letter)
     fn   <- func name
-    expr <- between (is '(') (is ')') expression
+    expr <- parenthesis delay
     return (Fn fn expr) where
         func "cos" = return Cos
         func "sin" = return Sin
@@ -58,12 +61,15 @@ function = do
         func other = fail ("unknown function name => " ++ other)
 
 value :: Parser Expression
-value = (many digit) >>= (return . Val . read)
+value = (parenthesis value) ||| ((some digit) >>= (return . Val . read))
 
-parenthesis :: Parser Expression
-parenthesis = function <|> (between (is '(') (is ')') expression)
+parenthesis :: Parser a -> Parser a
+parenthesis ma = between (is '(') (is ')') ma
+
+delay :: Parser Expression
+delay = (Pending) <$> (some character)
 
 expression :: Parser Expression
-expression = fail "yo mama"
+expression = (parenthesis expression) ||| (function ||| operator ||| value)
 
 
