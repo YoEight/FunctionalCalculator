@@ -34,14 +34,6 @@ number = do
 	xs <- many1 digit
 	return $ Con $ read xs
 
-neg :: Stream s m Char => ParsecT  s u m Term
-neg = do
-	char '('
-	char '-'
-	x <- number
-	char ')'
-	return $ Neg x
-
 callOrVar :: Stream s m Char => ParsecT s u m Term
 callOrVar = getName >>= \name -> (fmap (Call name) call) <|> (return $ Var name)
 	where
