@@ -1,6 +1,6 @@
 module Calculator 
-	( compile
-	, compileAndRun) where
+  ( compile
+  , compileAndRun) where
 		
 import Calculator.Interpreter
 import Calculator.Parsing
