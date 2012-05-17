@@ -1,9 +1,7 @@
-module Calculator 
-  ( compile
-  , compileAndRun) where
+module Calculator (compile, compileAndRun) where
 		
 import Calculator.Interpreter
-import Calculator.Parsing
+import Calculator.Parser.Expression
 
-compileAndRun = (fmap run) . compile
+compileAndRun = (interpret =<<) . compile
 
