@@ -29,7 +29,11 @@ instance Monad Parser where
   return a = Parser $ \s -> Success (s, a)
   (Parser pa) >>= f = Parser $ \s -> pa s >>= \(s', a) -> parse (f a) s'
   fail e = Parser $ const Failure e
-  
+
+{-instance MonadPlus Parser where
+  mzero = fail ""
+  mfail =-} 
+
 instance Alternative Parser where
   empty = fail ""
   (Parser a) <|> (Parser b) = Parser $ \s -> case a s of
@@ -64,9 +68,7 @@ string (x:xs) = char x >> string xs
 string _      = return ()
 
 choice :: [Parser a] -> Parser a
-choice []     = fail "all choosed parser failed"
-choice [p]    = p
-choice (x:xs) = x <|> choice xs 
+choice = foldr (<|>) empty
 
 skipMany :: Parser a -> Parser ()
 skipMany p = many p >> return ()

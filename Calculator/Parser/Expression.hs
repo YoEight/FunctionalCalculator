@@ -22,7 +22,7 @@ term :: Parser Term
 term = buildExpressionParser operatorTable expr
 
 expr :: Parser Term
-expr = (skipMany space) *> (parens <|> number) <* (skipMany space)
+expr = (skipMany space) *> (parens <|> number)
 
 number :: Parser Term
 number = do

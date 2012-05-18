@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Calculator.Parsing (compile, Term (..)) where
+module Calculator.Parsec.Parsing (compile, Term (..)) where
 
 import Text.Parsec.Expr
 import Text.Parsec hiding (State)

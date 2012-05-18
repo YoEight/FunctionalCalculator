@@ -1,9 +1,9 @@
-module Calculator.Interpreter (interpret, run, runWithEnv) where
+module Calculator.Parsec.Interpreter (interpret, run, runWithEnv) where
 
 import Prelude hiding (lookup, div)
 import Control.Applicative
 import Control.Monad.State
-import Calculator.Parsing hiding (compile)
+import Calculator.Parsec.Parsing hiding (compile)
 import Calculator.Validation
 
 type Name     = String
@@ -73,8 +73,8 @@ interpret (Mul ta tb)  = liftA2 mul (interpret ta) (interpret tb)
 interpret (Div ta tb)  = liftA2 div (interpret ta) (interpret tb)
 interpret (Lam n b)    = pureResult $ Fun (inner n b)
   where inner name body value = do
-    modify ((name, value):)
-    interpret body
+          modify ((name, value):)
+          interpret body
 	
 interpret (App tf ta)  = do
   f <- interpret tf
